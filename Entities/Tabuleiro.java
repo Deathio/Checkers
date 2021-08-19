@@ -4,17 +4,18 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Tabuleiro {
-    int caminho, size = 8;
+    static int size = 8;
     int[][] posicoesTabuleiro;
     Queue<Cavalo> caminhoPercorrido;
+    Queue<Cavalo> maiorCaminhoPercorrido;
 
     public Tabuleiro(Cavalo cavalo) {
-        caminho = 0;
         posicoesTabuleiro = new int[size][size];
         caminhoPercorrido = new LinkedList<>();
+        maiorCaminhoPercorrido = new LinkedList<>();
 
         checandoPosibilidades(cavalo);
-        System.out.println(caminho);
+        IlustrarTabuleiro();
     }
 
     @Override
@@ -35,120 +36,104 @@ public class Tabuleiro {
     }
 
     private void checandoPosibilidades(Cavalo atual) {
-        if (atual != null) {
-            Cavalo[] movimentos = possiveisMovimentos(atual);
+        if (atual != null || maiorCaminhoPercorrido.size() < 64) {
+            Queue<Cavalo> movimentos = possiveisMovimentos(atual);
 
-            if (!caminhoPercorrido.isEmpty()) {
-                for (Cavalo atribuir : caminhoPercorrido) {
-                    AtribuirPos(atribuir);
-                }
-            }
-            if (movimentos.length > 0) {
+            if (movimentos != null)
                 for (Cavalo cavalo : movimentos) {
-                    if (!checagemDeEspaçoZero())
-                        return;
-                    caminhoPercorrido.add(cavalo);
-                    caminho++;
-                    checandoPosibilidades(cavalo);
+                    if(caminhoPercorrido.size() < 64) {
+                        caminhoPercorrido.add(cavalo);
+
+                        checandoPosibilidades(cavalo);
+                    }
+
+                    if (caminhoPercorrido.size() > maiorCaminhoPercorrido.size())
+                        maiorCaminhoPercorrido = caminhoPercorrido;
+
+                    if(caminhoPercorrido.size() == 64)
+                        break;
                     caminhoPercorrido.remove();
                 }
-                caminho--;
-            }
         }
     }
 
-    private void AtribuirPos(Cavalo cavalo) {
-        posicoesTabuleiro[cavalo.posX][cavalo.posY] += 1;
-    }
-
-    private Cavalo[] possiveisMovimentos(Cavalo atual) {
+    private Queue<Cavalo> possiveisMovimentos(Cavalo atual) {
         Cavalo check;
-        Cavalo[] line = new Cavalo[8];
-        int posicaoArmazenamento = 0;
+        Queue<Cavalo> line = new LinkedList<>();
 
         // esquerda cima
         if (atual.posX - 2 >= 0 && atual.posX - 2 < size && atual.posY - 1 > 0 && atual.posY - 1 < size) {
             check = new Cavalo(atual.posX - 2, atual.posY - 1);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // esquerda baixo
         if (atual.posX - 2 >= 0 && atual.posX - 2 < size && atual.posY + 1 > 0 && atual.posY + 1 < size) {
             check = new Cavalo(atual.posX - 2, atual.posY + 1);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
-            }
-        }
-        // direita baixo
-        if (atual.posX + 2 >= 0 && atual.posX + 2 < size && atual.posY - 1 >= 0 && atual.posY - 1 < size) {
-            check = new Cavalo(atual.posX + 2, atual.posY - 1);
-            if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // direita cima
+        if (atual.posX + 2 >= 0 && atual.posX + 2 < size && atual.posY - 1 >= 0 && atual.posY - 1 < size) {
+            check = new Cavalo(atual.posX + 2, atual.posY - 1);
+            if (checagemIgualdade(check)) {
+                line.add(check);
+            }
+        }
+        // direita baixo
         if (atual.posX + 2 >= 0 && atual.posX + 2 < size && atual.posY + 1 >= 0 && atual.posY + 1 < size) {
             check = new Cavalo(atual.posX + 2, atual.posY + 1);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // cima esquerda
         if (atual.posX - 1 >= 0 && atual.posX - 1 < size && atual.posY - 2 >= 0 && atual.posY - 2 < size) {
             check = new Cavalo(atual.posX - 1, atual.posY - 2);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // cima direita
         if (atual.posX + 1 >= 0 && atual.posX + 1 < size && atual.posY - 2 >= 0 && atual.posY - 2 < size) {
             check = new Cavalo(atual.posX + 1, atual.posY - 2);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // baixo esquerda
         if (atual.posX - 1 >= 0 && atual.posX - 1 < size && atual.posY + 2 >= 0 && atual.posY + 2 < size) {
             check = new Cavalo(atual.posX - 1, atual.posY + 2);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
         // baixo direita
         if (atual.posX + 1 >= 0 && atual.posX + 1 < size && atual.posY + 2 >= 0 && atual.posY + 2 < size) {
             check = new Cavalo(atual.posX + 1, atual.posY + 2);
             if (checagemIgualdade(check)) {
-                line[posicaoArmazenamento] = check;
-                ++posicaoArmazenamento;
+                line.add(check);
             }
         }
-        return line;
-    }
-
-    private boolean checagemDeEspaçoZero() {
-        for (int[] collumn : posicoesTabuleiro) {
-            for (int line : collumn) {
-                if (line == 0)
-                    return true;
-            }
-        }
-        return false;
+        return line.size() > 0 ? line : null;
     }
 
     private boolean checagemIgualdade(Cavalo cavalo) {
         for (Cavalo check : caminhoPercorrido) {
-            if (cavalo.equals(check))
+            if (cavalo == null || cavalo.equals(check))
                 return false;
         }
 
         return true;
+    }
+    
+    private void IlustrarTabuleiro() {
+        int valor = 1;
+        for (Cavalo cavalo : maiorCaminhoPercorrido) {
+            posicoesTabuleiro[cavalo.posY][cavalo.posX] = valor;
+            valor++;
+        }
     }
 }
