@@ -1,21 +1,13 @@
 package Entities;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 public class Tabuleiro {
-    static int size = 8;
+    final int size = 8;
     int[][] posicoesTabuleiro;
-    Queue<Cavalo> caminhoPercorrido;
-    Queue<Cavalo> maiorCaminhoPercorrido;
 
     public Tabuleiro(Cavalo cavalo) {
         posicoesTabuleiro = new int[size][size];
-        caminhoPercorrido = new LinkedList<>();
-        maiorCaminhoPercorrido = new LinkedList<>();
 
-        checandoPosibilidades(cavalo);
-        IlustrarTabuleiro();
+        resolvendoCaminho(cavalo);
     }
 
     @Override
@@ -34,106 +26,50 @@ public class Tabuleiro {
         }
         return print;
     }
+    // OKAY!!!
+    private boolean resolvendoCaminho(Cavalo cavalo) {
+        int valor = 1;
 
-    private void checandoPosibilidades(Cavalo atual) {
-        if (atual != null || maiorCaminhoPercorrido.size() < 64) {
-            Queue<Cavalo> movimentos = possiveisMovimentos(atual);
+        int[] matrizX = { 2, 1, -1, -2, -2, -1, 1, 2 };
+        int[] matrizY = { 1, 2, 2, 1, -1, -2, -2, -1 };
 
-            if (movimentos != null)
-                for (Cavalo cavalo : movimentos) {
-                    if(caminhoPercorrido.size() < 64) {
-                        caminhoPercorrido.add(cavalo);
+        posicoesTabuleiro[cavalo.posY][cavalo.posX] = valor;
 
-                        checandoPosibilidades(cavalo);
-                    }
-
-                    if (caminhoPercorrido.size() > maiorCaminhoPercorrido.size())
-                        maiorCaminhoPercorrido = caminhoPercorrido;
-
-                    if(caminhoPercorrido.size() == 64)
-                        break;
-                    caminhoPercorrido.remove();
-                }
+        if (!checandoPosibilidades(cavalo.posX, cavalo.posY, ++valor, matrizX, matrizY)) {
+            System.out.println("Solucao não existe");
+            return false;
+        } else {
+            System.out.println("OKAY");
         }
-    }
-
-    private Queue<Cavalo> possiveisMovimentos(Cavalo atual) {
-        Cavalo check;
-        Queue<Cavalo> line = new LinkedList<>();
-
-        // esquerda cima
-        if (atual.posX - 2 >= 0 && atual.posX - 2 < size && atual.posY - 1 > 0 && atual.posY - 1 < size) {
-            check = new Cavalo(atual.posX - 2, atual.posY - 1);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // esquerda baixo
-        if (atual.posX - 2 >= 0 && atual.posX - 2 < size && atual.posY + 1 > 0 && atual.posY + 1 < size) {
-            check = new Cavalo(atual.posX - 2, atual.posY + 1);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // direita cima
-        if (atual.posX + 2 >= 0 && atual.posX + 2 < size && atual.posY - 1 >= 0 && atual.posY - 1 < size) {
-            check = new Cavalo(atual.posX + 2, atual.posY - 1);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // direita baixo
-        if (atual.posX + 2 >= 0 && atual.posX + 2 < size && atual.posY + 1 >= 0 && atual.posY + 1 < size) {
-            check = new Cavalo(atual.posX + 2, atual.posY + 1);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // cima esquerda
-        if (atual.posX - 1 >= 0 && atual.posX - 1 < size && atual.posY - 2 >= 0 && atual.posY - 2 < size) {
-            check = new Cavalo(atual.posX - 1, atual.posY - 2);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // cima direita
-        if (atual.posX + 1 >= 0 && atual.posX + 1 < size && atual.posY - 2 >= 0 && atual.posY - 2 < size) {
-            check = new Cavalo(atual.posX + 1, atual.posY - 2);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // baixo esquerda
-        if (atual.posX - 1 >= 0 && atual.posX - 1 < size && atual.posY + 2 >= 0 && atual.posY + 2 < size) {
-            check = new Cavalo(atual.posX - 1, atual.posY + 2);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        // baixo direita
-        if (atual.posX + 1 >= 0 && atual.posX + 1 < size && atual.posY + 2 >= 0 && atual.posY + 2 < size) {
-            check = new Cavalo(atual.posX + 1, atual.posY + 2);
-            if (checagemIgualdade(check)) {
-                line.add(check);
-            }
-        }
-        return line.size() > 0 ? line : null;
-    }
-
-    private boolean checagemIgualdade(Cavalo cavalo) {
-        for (Cavalo check : caminhoPercorrido) {
-            if (cavalo == null || cavalo.equals(check))
-                return false;
-        }
-
         return true;
     }
-    
-    private void IlustrarTabuleiro() {
-        int valor = 1;
-        for (Cavalo cavalo : maiorCaminhoPercorrido) {
-            posicoesTabuleiro[cavalo.posY][cavalo.posX] = valor;
-            valor++;
+
+    private boolean checandoPosibilidades(int valorX, int valorY, int valor, int[] posX, int[] posY) {
+        int prox_X, prox_Y;
+        if (valor > size * size)
+            return true;
+
+        for (int pos = 0; pos < size; ++pos) {
+            prox_X = valorX + posX[pos];
+            prox_Y = valorY + posY[pos];
+
+            if (isSafe(prox_X, prox_Y)) {
+
+                posicoesTabuleiro[prox_X][prox_Y] = valor;
+                if (checandoPosibilidades(prox_X, prox_Y, ++valor, posX, posY))
+                    return true;
+                else {
+                    --valor;
+                    posicoesTabuleiro[prox_X][prox_Y] = 0;
+                }
+            }
         }
+        return false;
+    }
+    // OK!
+    private boolean isSafe(int xValue, int yValue) {
+        if (xValue >= 0 && xValue < size && yValue >= 0 && yValue < size && posicoesTabuleiro[xValue][yValue] == 0)
+            return true;
+        return false;
     }
 }
