@@ -2,7 +2,10 @@ package Entities;
 
 public class Tabuleiro {
     final int size = 8;
+    int maxValue, maxPlays;
     int[][] posicoesTabuleiro;
+    int[][] savePositions;
+    boolean returnCase;
 
     public Tabuleiro(Cavalo cavalo) {
         posicoesTabuleiro = new int[size][size];
@@ -26,6 +29,7 @@ public class Tabuleiro {
         }
         return print;
     }
+
     // OKAY!!!
     private boolean resolvendoCaminho(Cavalo cavalo) {
         int valor = 1;
@@ -37,6 +41,7 @@ public class Tabuleiro {
 
         if (!checandoPosibilidades(cavalo.posX, cavalo.posY, ++valor, matrizX, matrizY)) {
             System.out.println("Solucao não existe");
+            posicoesTabuleiro = savePositions;
             return false;
         } else {
             System.out.println("OKAY");
@@ -46,16 +51,23 @@ public class Tabuleiro {
 
     private boolean checandoPosibilidades(int valorX, int valorY, int valor, int[] posX, int[] posY) {
         int prox_X, prox_Y;
-        if (valor > size * size)
+        if (valor > size * size || maxPlays > 10000000)
             return true;
 
-        for (int pos = 0; pos < size; ++pos) {
+        for (int pos = 0; pos < posX.length; ++pos) {
             prox_X = valorX + posX[pos];
             prox_Y = valorY + posY[pos];
 
             if (isSafe(prox_X, prox_Y)) {
-
+                ++maxPlays;
                 posicoesTabuleiro[prox_X][prox_Y] = valor;
+                maxValue = maxValue < valor ? valor : maxValue;
+
+                if (valor > maxValue) {
+                    maxValue = valor;
+                    savePositions = posicoesTabuleiro;
+                }
+
                 if (checandoPosibilidades(prox_X, prox_Y, ++valor, posX, posY))
                     return true;
                 else {
@@ -66,6 +78,7 @@ public class Tabuleiro {
         }
         return false;
     }
+
     // OK!
     private boolean isSafe(int xValue, int yValue) {
         if (xValue >= 0 && xValue < size && yValue >= 0 && yValue < size && posicoesTabuleiro[xValue][yValue] == 0)
