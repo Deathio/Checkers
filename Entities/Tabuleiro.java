@@ -30,8 +30,8 @@ public class Tabuleiro {
             }
             print += "\n\n";
         }
-        print += "N. tentativas N. passos\tN. tentativas N. passos\n";
         if(maxValue == 64) {
+            print += "N. tentativas N. passos\tN. tentativas N. passos\n";
             for(int pos = 0; pos < 32; pos++) {
                 print += String.format("%d\t\t%d\t%d\t\t%d\n", caminhos[pos], pos + 1, caminhos[pos + 32], pos + 33);
             }
