@@ -20,7 +20,7 @@ public class Tabuleiro {
     public String toString() {
         String print = resultado + "\n\s";
         for (int firstLine = 0; firstLine < size; ++firstLine)
-            print += String.format(firstLine == size - 1 ? "\s\s\s\s%d\n\n" : "\s\s\s\s%d", firstLine);
+            print += String.format(firstLine == size - 1 ? "\s\s\s\s%d\n" : "\s\s\s\s%d", firstLine);
         for (int collumn = 0; collumn < size; ++collumn) {
             print += collumn;
             for (int line = 0; line < size; ++line) {
@@ -28,10 +28,10 @@ public class Tabuleiro {
                         : "\s\s\s\s" + posicoesTabuleiro[collumn][line];
                 print += valorRepresent;
             }
-            print += "\n\n";
+            print += "\n";
         }
         if(maxValue == 64) {
-            print += "N. tentativas N. passos\tN. tentativas N. passos\n";
+            print += "\nN. tentativas N. passos\tN. tentativas N. passos\n";
             for(int pos = 0; pos < 32; pos++) {
                 print += String.format("%d\t\t%d\t%d\t\t%d\n", caminhos[pos], pos + 1, caminhos[pos + 32], pos + 33);
             }
